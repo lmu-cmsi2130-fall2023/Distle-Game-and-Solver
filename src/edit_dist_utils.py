@@ -1,3 +1,4 @@
+from typing import *
 '''
 Variety of functions related to computing the edit distance between
 strings and, importantly, which WILL be used by the DistleGame to
@@ -27,7 +28,37 @@ def get_edit_dist_table(row_str: str, col_str: str) -> list[list[int]]:
             edit_distance(row_str, col_str)
     '''
     # [!] TODO
-    return []
+
+    table: list[list[int]] = []
+
+    for _ in range(len(row_str) + 1):
+        row: list = []
+        for _ in range(len(col_str) + 1):
+            row.append(0)
+        table.append(row)
+
+    for r in range(len(row_str) + 1):
+        table[r][0] = r
+    for c in range(len(col_str) + 1):
+        table[0][c] = c
+
+    for r in range(1, len(row_str) + 1):
+        for c in range(1, len(col_str) + 1):
+
+            deletion = replacement = transposition = insertion = 1000
+
+            if c >= 1:
+                insertion = table[r][c-1] + 1
+            if r >= 1:
+                deletion = table[r-1][c] + 1
+            if row_str[r-1] == col_str[c-1] and r >= 1 and c >= 1:
+                replacement = table[r-1][c-1]
+            if row_str[r-1] != col_str[c-1] and r >= 1 and c >= 1:
+                replacement = table[r-1][c-1] + 1
+            if row_str[r-1] == col_str[c-2] and row_str[r-2] == col_str[c-1] and r >= 2 and c>= 2:
+                transposition = table[r-2][c-2] + 1
+            table[r][c] = min (deletion, replacement, insertion, transposition)
+    return table
 
 def edit_distance(s0: str, s1: str) -> int:
     '''
@@ -95,4 +126,58 @@ def get_transformation_list_with_table(s0: str, s1: str, table: list[list[int]])
     [!] MUST be implemented recursively (i.e., in top-down fashion)
     '''
     # [!] TODO
-    return []
+
+    final_list: list[str] = []
+    r: int = len(s0)
+    c: int = len(s1) 
+
+    def do_stuff(c: int, r: int, temp_list: List[str]) -> Optional[List[str]]:
+        if table[r][c] == 0:
+            return temp_list[::-1]
+
+        temp_R = temp_T = temp_I = temp_D = float('inf')
+
+        if c > 0:
+            temp_I = table[r][c-1] 
+        if r > 0:
+            temp_D = table[r-1][c]
+        if c > 0 and r > 0:
+            if s0[r-1] == s1[c-1]:
+                temp_R = table[r-1][c-1]
+            else:
+                temp_R = table[r-1][c-1] 
+        if c >= 2 and r >= 2 and s0[r-1] == s1[c-2] and s0[r-2] == s1[c-1]:
+            temp_T = table[r-2][c-2]  
+
+        minimum = min(temp_T, temp_R, temp_D, temp_I)
+        
+        if temp_R == minimum:
+          if temp_R == table[r][c]:
+            do_stuff(c - 1, r - 1, temp_list)
+          else:
+            temp_list.append("R")
+            do_stuff(c - 1, r - 1, temp_list)
+        elif temp_T == minimum:
+          if temp_T == table[r][c]:
+            do_stuff(c - 2, r - 2, temp_list)
+          else:
+            temp_list.append("T")
+            do_stuff(c - 2, r - 2, temp_list)
+        elif temp_I == minimum:
+          if temp_I == table[r][c]:
+            do_stuff(c - 1, r, temp_list)
+          else:
+            temp_list.append("I")
+            do_stuff(c - 1, r, temp_list)
+        elif temp_D == minimum:
+          if temp_D == table[r][c]:
+            do_stuff(c, r - 1, temp_list)
+          else:
+            temp_list.append("D")
+            do_stuff(c, r - 1, temp_list)
+        return None
+
+    do_stuff(c, r, final_list)
+    return final_list
+
+
