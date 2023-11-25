@@ -31,6 +31,9 @@ def get_edit_dist_table(row_str: str, col_str: str) -> list[list[int]]:
 
     table: list[list[int]] = []
 
+    # >> [SC] Poor variable names here that could be improved to indicate their contents
+    # and purpose; use row and col (or something similar) instead of single-letter placeholders, and "table" can
+    # even be made better with something like "edit_dist_table" (-1)
     for _ in range(len(row_str) + 1):
         row: list = []
         for _ in range(len(col_str) + 1):
@@ -131,6 +134,8 @@ def get_transformation_list_with_table(s0: str, s1: str, table: list[list[int]])
     r: int = len(s0)
     c: int = len(s1) 
 
+    # >> [SC] Provide proper Javadocs for ALL methods, including helpers you write (-1)
+    # >> [SC] Also make sure to rename method so that it's clear what it does (I like the name tho haha)
     def do_stuff(c: int, r: int, temp_list: List[str]) -> Optional[List[str]]:
         if table[r][c] == 0:
             return temp_list[::-1]
@@ -149,6 +154,11 @@ def get_transformation_list_with_table(s0: str, s1: str, table: list[list[int]])
         if c >= 2 and r >= 2 and s0[r-1] == s1[c-2] and s0[r-2] == s1[c-1]:
             temp_T = table[r-2][c-2]  
 
+        # >> [SC] You shouldn't need to compare for minimums here at all since you KNOW
+        # that the table's entry at the current row and column IS the minimum (assuming it was
+        # completed correctly before being given to this method as an argument); instead, just
+        # check if the current cell is the same as one of the candidate sources in the table
+        # (making sure to add +1 where appropriate) (-0.5)
         minimum = min(temp_T, temp_R, temp_D, temp_I)
         
         if temp_R == minimum:
@@ -180,4 +190,28 @@ def get_transformation_list_with_table(s0: str, s1: str, table: list[list[int]])
     do_stuff(c, r, final_list)
     return final_list
 
-
+# ===================================================
+# >>> [SC] Summary
+# Excellent submission that has a ton to like and was
+# obviously well-tested. Generally clean style (apart
+# from a few quibbles noted above), and shows
+# strong command of programming foundations alongside
+# data structure and algorithmic concepts. Keep up
+# the great work!
+# ---------------------------------------------------
+# >>> [SC] Style Checklist
+# [X] = Good, [~] = Mixed bag, [ ] = Needs improvement
+#
+# [~] Variables and helper methods named and used well
+# [X] Proper and consistent indentation and spacing
+# [~] Proper docstrings provided for ALL methods
+# [X] Logic is adequately simplified
+# [X] Code repetition is kept to a minimum
+# ---------------------------------------------------
+# Correctness:          100 / 100
+# -> EditDistUtils:      20 / 20  (-2 / missed test)
+# -> DistlePlayer:      273 / 265 (-1 / below threshold; max -30)
+# Mypy Penalty:        -0 (-4 if mypy wasn't clean)
+# Style Penalty:       -2.5
+# Total:                97.5/ 100
+# ===================================================
